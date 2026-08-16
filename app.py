@@ -7,41 +7,41 @@ from datetime import datetime
 st.set_page_config(page_title="Military Fleet Tactical Maintenance & AI Documentation Portal", layout="wide")
 
 st.title("🎖️ Army Fleet Tactical Maintenance & AI Defect Documentation Portal")
-st.caption("AI-Powered Workshop Telematics, Failure Diagnostics & Work-Docket Generation")
+st.caption("AI-Powered Workshop Telematics, Failure Diagnostics, Vintage/Mileage Analytics & Work-Docket Generation")
 
 # 1. Real Military Defect Log Ingestion
 @st.cache_data
 def get_official_fleet_data():
     raw_data = [
         # Vehicle 1: 2.5 TON (19C-107753W)
-        {"S_No": 1, "Nomenclature": "2.5 TON", "Veh_BA_No": "19C-107753W", "Dt_Induction": "09-Jun-21", "Dt_In": "26-Oct-23", "Dt_Out": "28-Jan-24", "KM_In": 22131, "KM_Out": 22137, "Defect": "AXLE NOISY, AIR FILTER DIRTY, RADIATOR LEAKING, HUB SEAL WORN OUT", "Repair_Activity": "REPAIRED, AIR FILTER NEW FITTED, RADIATOR ASSY NEW FITTED, HUB SEAL NEW FITTED"},
-        {"S_No": 1, "Nomenclature": "2.5 TON", "Veh_BA_No": "19C-107753W", "Dt_Induction": "09-Jun-21", "Dt_In": "13-Nov-23", "Dt_Out": "22-Feb-24", "KM_In": 22238, "KM_Out": 22243, "Defect": "ROTARY SWITCH NOT WORK, ISOLETOR SWITCH NOT WORK, AIR FILTER DIRTY, CLUTCH HARD", "Repair_Activity": "ROTARY SWITCH REPAIRED, ISOLETOR SWITCH NEW FITTED, AIR FILTER NEW FITTED, CLUTCH ADJUSTED"},
+        {"S_No": 1, "Nomenclature": "2.5 TON", "Veh_BA_No": "19C-107753W", "Dt_Induction": "09-Jun-2021", "Dt_In": "26-Oct-2023", "Dt_Out": "28-Jan-2024", "KM_In": 22131, "KM_Out": 22137, "Defect": "AXLE NOISY, AIR FILTER DIRTY, RADIATOR LEAKING, HUB SEAL WORN OUT", "Repair_Activity": "REPAIRED, AIR FILTER NEW FITTED, RADIATOR ASSY NEW FITTED, HUB SEAL NEW FITTED"},
+        {"S_No": 1, "Nomenclature": "2.5 TON", "Veh_BA_No": "19C-107753W", "Dt_Induction": "09-Jun-2021", "Dt_In": "13-Nov-2023", "Dt_Out": "22-Feb-2024", "KM_In": 22238, "KM_Out": 22243, "Defect": "ROTARY SWITCH NOT WORK, ISOLETOR SWITCH NOT WORK, AIR FILTER DIRTY, CLUTCH HARD", "Repair_Activity": "ROTARY SWITCH REPAIRED, ISOLETOR SWITCH NEW FITTED, AIR FILTER NEW FITTED, CLUTCH ADJUSTED"},
         # Vehicle 2: 2.5 TON (19C-107906X)
-        {"S_No": 2, "Nomenclature": "2.5 TON", "Veh_BA_No": "19C-107906X", "Dt_Induction": "09-Jun-21", "Dt_In": "06-Mar-25", "Dt_Out": "08-Mar-25", "KM_In": 30502, "KM_Out": 30509, "Defect": "AIR COMPRESSURE LEAK, BRAKE POOR", "Repair_Activity": "AIR COMPRESSOR CANEBLIZED FROM CL-V VEH, BOTH REAR BRAKE BOOSTER CANNIBALIZED, ALL FOUR WHEEL BRAKE ADJUSTED"},
-        {"S_No": 2, "Nomenclature": "2.5 TON", "Veh_BA_No": "19C-107906X", "Dt_Induction": "09-Jun-21", "Dt_In": "21-May-25", "Dt_Out": "28-Jul-25", "KM_In": 30732, "KM_Out": 30739, "Defect": "VEH PULLING POWER WEAK, SOLENOID SWITCH NOT WORK", "Repair_Activity": "CLUTCH PLATE & CLUTCH MASTER CYLINDER NEW FITTED, SOLENOID SWITCH NEW FITTED"},
-        {"S_No": 2, "Nomenclature": "2.5 TON", "Veh_BA_No": "19C-107906X", "Dt_Induction": "09-Jun-21", "Dt_In": "15-Sep-25", "Dt_Out": "15-Sep-25", "KM_In": 31022, "KM_Out": 31028, "Defect": "DOOR GLASS MECHANISM NOT WORK, MAIN SWITCH NOT WORK, STEERING GEAR BOX OIL LEAKING", "Repair_Activity": "DOOR GLASS MECH REPAIRED, CHANGE OVER SWITCH NEW FITTED, STEERING GEAR BOX REMOVED & SEAL KIT ZF NEW FITTED"},
-        {"S_No": 2, "Nomenclature": "2.5 TON", "Veh_BA_No": "19C-107906X", "Dt_Induction": "09-Jun-21", "Dt_In": "09-Jul-26", "Dt_Out": "12-Jul-26", "KM_In": 32237, "KM_Out": 32243, "Defect": "AXLE NOISY, PROPELLER SHAFT NOISY, DOOR LOCK NOT WORK", "Repair_Activity": "AXLE REPAIRED, PROPELLER SHAFT REMOVED & NUT NEW FITTED, DOOR LOCK REPAIRED"},
+        {"S_No": 2, "Nomenclature": "2.5 TON", "Veh_BA_No": "19C-107906X", "Dt_Induction": "09-Jun-2021", "Dt_In": "06-Mar-2025", "Dt_Out": "08-Mar-2025", "KM_In": 30502, "KM_Out": 30509, "Defect": "AIR COMPRESSURE LEAK, BRAKE POOR", "Repair_Activity": "AIR COMPRESSOR CANEBLIZED FROM CL-V VEH, BOTH REAR BRAKE BOOSTER CANNIBALIZED, ALL FOUR WHEEL BRAKE ADJUSTED"},
+        {"S_No": 2, "Nomenclature": "2.5 TON", "Veh_BA_No": "19C-107906X", "Dt_Induction": "09-Jun-2021", "Dt_In": "21-May-2025", "Dt_Out": "28-Jul-2025", "KM_In": 30732, "KM_Out": 30739, "Defect": "VEH PULLING POWER WEAK, SOLENOID SWITCH NOT WORK", "Repair_Activity": "CLUTCH PLATE & CLUTCH MASTER CYLINDER NEW FITTED, SOLENOID SWITCH NEW FITTED"},
+        {"S_No": 2, "Nomenclature": "2.5 TON", "Veh_BA_No": "19C-107906X", "Dt_Induction": "09-Jun-2021", "Dt_In": "15-Sep-2025", "Dt_Out": "15-Sep-2025", "KM_In": 31022, "KM_Out": 31028, "Defect": "DOOR GLASS MECHANISM NOT WORK, MAIN SWITCH NOT WORK, STEERING GEAR BOX OIL LEAKING", "Repair_Activity": "DOOR GLASS MECH REPAIRED, CHANGE OVER SWITCH NEW FITTED, STEERING GEAR BOX REMOVED & SEAL KIT ZF NEW FITTED"},
+        {"S_No": 2, "Nomenclature": "2.5 TON", "Veh_BA_No": "19C-107906X", "Dt_Induction": "09-Jun-2021", "Dt_In": "09-Jul-2026", "Dt_Out": "12-Jul-2026", "KM_In": 32237, "KM_Out": 32243, "Defect": "AXLE NOISY, PROPELLER SHAFT NOISY, DOOR LOCK NOT WORK", "Repair_Activity": "AXLE REPAIRED, PROPELLER SHAFT REMOVED & NUT NEW FITTED, DOOR LOCK REPAIRED"},
         # Vehicle 3: 2.5 TON (22C-109902P)
-        {"S_No": 3, "Nomenclature": "2.5 TON", "Veh_BA_No": "22C-109902P", "Dt_Induction": "24-Feb-22", "Dt_In": "13-Nov-25", "Dt_Out": "16-Nov-25", "KM_In": 10847, "KM_Out": 10849, "Defect": "ISOLATOR SWITCH NOT WORK, BRAKE POOR", "Repair_Activity": "ISOLATOR SWITCH REPAIRED, BRAKE ADJUSTED"},
+        {"S_No": 3, "Nomenclature": "2.5 TON", "Veh_BA_No": "22C-109902P", "Dt_Induction": "24-Feb-2022", "Dt_In": "13-Nov-2025", "Dt_Out": "16-Nov-2025", "KM_In": 10847, "KM_Out": 10849, "Defect": "ISOLATOR SWITCH NOT WORK, BRAKE POOR", "Repair_Activity": "ISOLATOR SWITCH REPAIRED, BRAKE ADJUSTED"},
         # Vehicle 4: ALS (13D-192836W)
-        {"S_No": 4, "Nomenclature": "ALS", "Veh_BA_No": "13D-192836W", "Dt_Induction": "20-Aug-14", "Dt_In": "05-Sep-23", "Dt_Out": "27-Oct-23", "KM_In": 60740, "KM_Out": 60742, "Defect": "STARTING TROUBLE", "Repair_Activity": "ALL INJECTOR OVERHAUL & FUEL FEED PUMP REPAIRED"},
-        {"S_No": 4, "Nomenclature": "ALS", "Veh_BA_No": "13D-192836W", "Dt_Induction": "20-Aug-14", "Dt_In": "10-Feb-25", "Dt_Out": "14-Feb-25", "KM_In": 66343, "KM_Out": 66348, "Defect": "MAIN GEAR BOX NOISY, RADIATOR LEKING, BRAKE POOR, CABIN LIFTING PUMP NOT WORK", "Repair_Activity": "MAIN GEAR BOX MAIN SHAFT & REVERSE SHAFT REPLACED, GAS WELDING/FLASHING, ALL FOUR WHEEL BRAKE ADJUSTED, RAM HYDRAULIC NEW FITTED"},
-        {"S_No": 4, "Nomenclature": "ALS", "Veh_BA_No": "13D-192836W", "Dt_Induction": "20-Aug-14", "Dt_In": "17-Apr-25", "Dt_Out": "18-Aug-25", "KM_In": 66487, "KM_Out": 66490, "Defect": "ENGINE OVERHEATING, HAND BRAKE AIR PRESSURE LEAKING", "Repair_Activity": "WATER PUMP MAJOR SERVICE KIT & FLUID ELEMENT NEW FITTED, PRESSURE LEAKING RECTIFIED"},
-        {"S_No": 4, "Nomenclature": "ALS", "Veh_BA_No": "13D-192836W", "Dt_Induction": "20-Aug-14", "Dt_In": "18-Nov-25", "Dt_Out": "24-Feb-26", "KM_In": 68064, "KM_Out": 68068, "Defect": "GEAR SHIFTING HARD, STARTING TROUBLE", "Repair_Activity": "GEAR BOX SERVICING CARRIED OUT, FUEL TANK & PIPE LINE CLEANED"},
-        {"S_No": 4, "Nomenclature": "ALS", "Veh_BA_No": "13D-192836W", "Dt_Induction": "20-Aug-14", "Dt_In": "19-Mar-26", "Dt_Out": "20-Mar-26", "KM_In": 68221, "KM_Out": 68229, "Defect": "BRAKE POOR", "Repair_Activity": "BRAKE ADJUSTED"},
+        {"S_No": 4, "Nomenclature": "ALS", "Veh_BA_No": "13D-192836W", "Dt_Induction": "20-Aug-2014", "Dt_In": "05-Sep-2023", "Dt_Out": "27-Oct-2023", "KM_In": 60740, "KM_Out": 60742, "Defect": "STARTING TROUBLE", "Repair_Activity": "ALL INJECTOR OVERHAUL & FUEL FEED PUMP REPAIRED"},
+        {"S_No": 4, "Nomenclature": "ALS", "Veh_BA_No": "13D-192836W", "Dt_Induction": "20-Aug-2014", "Dt_In": "10-Feb-2025", "Dt_Out": "14-Feb-2025", "KM_In": 66343, "KM_Out": 66348, "Defect": "MAIN GEAR BOX NOISY, RADIATOR LEKING, BRAKE POOR, CABIN LIFTING PUMP NOT WORK", "Repair_Activity": "MAIN GEAR BOX MAIN SHAFT & REVERSE SHAFT REPLACED, GAS WELDING/FLASHING, ALL FOUR WHEEL BRAKE ADJUSTED, RAM HYDRAULIC NEW FITTED"},
+        {"S_No": 4, "Nomenclature": "ALS", "Veh_BA_No": "13D-192836W", "Dt_Induction": "20-Aug-2014", "Dt_In": "17-Apr-2025", "Dt_Out": "18-Aug-2025", "KM_In": 66487, "KM_Out": 66490, "Defect": "ENGINE OVERHEATING, HAND BRAKE AIR PRESSURE LEAKING", "Repair_Activity": "WATER PUMP MAJOR SERVICE KIT & FLUID ELEMENT NEW FITTED, PRESSURE LEAKING RECTIFIED"},
+        {"S_No": 4, "Nomenclature": "ALS", "Veh_BA_No": "13D-192836W", "Dt_Induction": "20-Aug-2014", "Dt_In": "18-Nov-2025", "Dt_Out": "24-Feb-2026", "KM_In": 68064, "KM_Out": 68068, "Defect": "GEAR SHIFTING HARD, STARTING TROUBLE", "Repair_Activity": "GEAR BOX SERVICING CARRIED OUT, FUEL TANK & PIPE LINE CLEANED"},
+        {"S_No": 4, "Nomenclature": "ALS", "Veh_BA_No": "13D-192836W", "Dt_Induction": "20-Aug-2014", "Dt_In": "19-Mar-2026", "Dt_Out": "20-Mar-2026", "KM_In": 68221, "KM_Out": 68229, "Defect": "BRAKE POOR", "Repair_Activity": "BRAKE ADJUSTED"},
         # Vehicle 5: ALS (19D-208745N)
-        {"S_No": 5, "Nomenclature": "ALS", "Veh_BA_No": "19D-208745N", "Dt_Induction": "29-May-19", "Dt_In": "26-Oct-23", "Dt_Out": "26-Oct-23", "KM_In": 27321, "KM_Out": 27329, "Defect": "BRAKE POOR", "Repair_Activity": "BRAKE ADJUSTED"},
-        {"S_No": 5, "Nomenclature": "ALS", "Veh_BA_No": "19D-208745N", "Dt_Induction": "29-May-19", "Dt_In": "14-Jan-25", "Dt_Out": "18-Jan-25", "KM_In": 29103, "KM_Out": 29109, "Defect": "ROAD SPRING BROCKEN, SUSPENSION NOISY", "Repair_Activity": "ROAD SPRING LEAF & U BOLT NEW FITTED, SUSPENSION REPAIR CARRIED OUT"},
-        {"S_No": 5, "Nomenclature": "ALS", "Veh_BA_No": "19D-208745N", "Dt_Induction": "29-May-19", "Dt_In": "20-Jan-26", "Dt_Out": "23-Jan-26", "KM_In": 32253, "KM_Out": 32258, "Defect": "BRAKE POOR, DOOR GLASS MECHENISM NOT WORK, WIPER MOTOR N/W, SOLENOID SWITCH NOT WORK", "Repair_Activity": "FRONT BRAKE SHOES & UNLOADER VALVE REPLACED, DOOR GLASS & WIPER MOTOR REPAIRED"},
+        {"S_No": 5, "Nomenclature": "ALS", "Veh_BA_No": "19D-208745N", "Dt_Induction": "29-May-2019", "Dt_In": "26-Oct-2023", "Dt_Out": "26-Oct-2023", "KM_In": 27321, "KM_Out": 27329, "Defect": "BRAKE POOR", "Repair_Activity": "BRAKE ADJUSTED"},
+        {"S_No": 5, "Nomenclature": "ALS", "Veh_BA_No": "19D-208745N", "Dt_Induction": "29-May-2019", "Dt_In": "14-Jan-2025", "Dt_Out": "18-Jan-2025", "KM_In": 29103, "KM_Out": 29109, "Defect": "ROAD SPRING BROCKEN, SUSPENSION NOISY", "Repair_Activity": "ROAD SPRING LEAF & U BOLT NEW FITTED, SUSPENSION REPAIR CARRIED OUT"},
+        {"S_No": 5, "Nomenclature": "ALS", "Veh_BA_No": "19D-208745N", "Dt_Induction": "29-May-2019", "Dt_In": "20-Jan-2026", "Dt_Out": "23-Jan-2026", "KM_In": 32253, "KM_Out": 32258, "Defect": "BRAKE POOR, DOOR GLASS MECHENISM NOT WORK, WIPER MOTOR N/W, SOLENOID SWITCH NOT WORK", "Repair_Activity": "FRONT BRAKE SHOES & UNLOADER VALVE REPLACED, DOOR GLASS & WIPER MOTOR REPAIRED"},
         # Vehicle 6: ALS (19D-202808W)
-        {"S_No": 6, "Nomenclature": "ALS", "Veh_BA_No": "19D-202808W", "Dt_Induction": "29-May-19", "Dt_In": "06-Aug-23", "Dt_Out": "07-Aug-23", "KM_In": 25562, "KM_Out": 25670, "Defect": "BRAKE POOR, HEAD LIGHT NOT WORK", "Repair_Activity": "BRAKE ADJUSTED, HEAD LIGHT REPAIRED"},
-        {"S_No": 6, "Nomenclature": "ALS", "Veh_BA_No": "19D-202808W", "Dt_Induction": "29-May-19", "Dt_In": "24-Aug-23", "Dt_Out": "24-Aug-23", "KM_In": 26020, "KM_Out": 26025, "Defect": "ROAD SPRING BROCKEN", "Repair_Activity": "ROAD SPRING NO.6 LEAF NEW FITTED"},
-        {"S_No": 6, "Nomenclature": "ALS", "Veh_BA_No": "19D-202808W", "Dt_Induction": "29-May-19", "Dt_In": "05-Jul-24", "Dt_Out": "06-Jul-24", "KM_In": 29334, "KM_Out": 29336, "Defect": "GEAR SHIFTING HARD, HUB SEAL WORN OUT, HAND BRAKE NOT WORK", "Repair_Activity": "GEAR BOX SERVICING, HUB SEAL NEW FITTED, HAND BRAKE REPAIR"},
-        {"S_No": 6, "Nomenclature": "ALS", "Veh_BA_No": "19D-202808W", "Dt_Induction": "29-May-19", "Dt_In": "25-May-26", "Dt_Out": "25-May-26", "KM_In": 33879, "KM_Out": 33885, "Defect": "SUSPENSION NOISY", "Repair_Activity": "SUSPENSION CHECKED REPAIR & DEFECT CARRIED OUT"},
+        {"S_No": 6, "Nomenclature": "ALS", "Veh_BA_No": "19D-202808W", "Dt_Induction": "29-May-2019", "Dt_In": "06-Aug-2023", "Dt_Out": "07-Aug-2023", "KM_In": 25562, "KM_Out": 25670, "Defect": "BRAKE POOR, HEAD LIGHT NOT WORK", "Repair_Activity": "BRAKE ADJUSTED, HEAD LIGHT REPAIRED"},
+        {"S_No": 6, "Nomenclature": "ALS", "Veh_BA_No": "19D-202808W", "Dt_Induction": "29-May-2019", "Dt_In": "24-Aug-2023", "Dt_Out": "24-Aug-2023", "KM_In": 26020, "KM_Out": 26025, "Defect": "ROAD SPRING BROCKEN", "Repair_Activity": "ROAD SPRING NO.6 LEAF NEW FITTED"},
+        {"S_No": 6, "Nomenclature": "ALS", "Veh_BA_No": "19D-202808W", "Dt_Induction": "29-May-2019", "Dt_In": "05-Jul-2024", "Dt_Out": "06-Jul-2024", "KM_In": 29334, "KM_Out": 29336, "Defect": "GEAR SHIFTING HARD, HUB SEAL WORN OUT, HAND BRAKE NOT WORK", "Repair_Activity": "GEAR BOX SERVICING, HUB SEAL NEW FITTED, HAND BRAKE REPAIR"},
+        {"S_No": 6, "Nomenclature": "ALS", "Veh_BA_No": "19D-202808W", "Dt_Induction": "29-May-2019", "Dt_In": "25-May-2026", "Dt_Out": "25-May-2026", "KM_In": 33879, "KM_Out": 33885, "Defect": "SUSPENSION NOISY", "Repair_Activity": "SUSPENSION CHECKED REPAIR & DEFECT CARRIED OUT"},
         # Vehicle 7: 5 KL W/B (14P-029330Y)
-        {"S_No": 7, "Nomenclature": "5 KL W/B", "Veh_BA_No": "14P-029330Y", "Dt_Induction": "16-Jun-14", "Dt_In": "05-Jun-23", "Dt_Out": "05-Jun-23", "KM_In": 18885, "KM_Out": 18889, "Defect": "WATER PUMP NOT WORK, WIPER BLADE PERISHED", "Repair_Activity": "WATER PUMP REPAIRED, WIPER BLADE NEW FITTED"},
-        {"S_No": 7, "Nomenclature": "5 KL W/B", "Veh_BA_No": "14P-029330Y", "Dt_Induction": "16-Jun-14", "Dt_In": "05-Feb-25", "Dt_Out": "05-Feb-25", "KM_In": 21587, "KM_Out": 21590, "Defect": "BRAKE POOR", "Repair_Activity": "BRAKE SHOE NEW FITTED AND BRAKE ADJUSTED"},
-        {"S_No": 7, "Nomenclature": "5 KL W/B", "Veh_BA_No": "14P-029330Y", "Dt_Induction": "16-Jun-14", "Dt_In": "01-Jul-25", "Dt_Out": "01-Jul-25", "KM_In": 21800, "KM_Out": 21809, "Defect": "FAN BELT BROCKEN", "Repair_Activity": "FAN BELT NEW FITTED & PTO BELT TENSIONER PULLEY NUT TIGHTEN"}
+        {"S_No": 7, "Nomenclature": "5 KL W/B", "Veh_BA_No": "14P-029330Y", "Dt_Induction": "16-Jun-2014", "Dt_In": "05-Jun-2023", "Dt_Out": "05-Jun-2023", "KM_In": 18885, "KM_Out": 18889, "Defect": "WATER PUMP NOT WORK, WIPER BLADE PERISHED", "Repair_Activity": "WATER PUMP REPAIRED, WIPER BLADE NEW FITTED"},
+        {"S_No": 7, "Nomenclature": "5 KL W/B", "Veh_BA_No": "14P-029330Y", "Dt_Induction": "16-Jun-2014", "Dt_In": "05-Feb-2025", "Dt_Out": "05-Feb-2025", "KM_In": 21587, "KM_Out": 21590, "Defect": "BRAKE POOR", "Repair_Activity": "BRAKE SHOE NEW FITTED AND BRAKE ADJUSTED"},
+        {"S_No": 7, "Nomenclature": "5 KL W/B", "Veh_BA_No": "14P-029330Y", "Dt_Induction": "16-Jun-2014", "Dt_In": "01-Jul-2025", "Dt_Out": "01-Jul-2025", "KM_In": 21800, "KM_Out": 21809, "Defect": "FAN BELT BROCKEN", "Repair_Activity": "FAN BELT NEW FITTED & PTO BELT TENSIONER PULLEY NUT TIGHTEN"}
     ]
     return pd.DataFrame(raw_data)
 
@@ -62,15 +62,23 @@ if uploaded_file is not None:
 else:
     df = get_official_fleet_data()
 
+# Vintage Calculation (Years from Dt_Induction)
+def calculate_vintage(dt_str):
+    try:
+        dt = pd.to_datetime(dt_str)
+        current_year = 2026
+        return round(current_year - dt.year, 1)
+    except:
+        return 5.0
+
+df['Vintage_Years'] = df['Dt_Induction'].apply(calculate_vintage)
+
 # 2. AI Defect Classifier & Intervention Level Reasoning
-def ai_analyze_defect(defect_str):
+def ai_analyze_defect(defect_str, vintage, mileage):
     d = str(defect_str).upper()
     
     # Critical workshop major triggers
     major_keywords = ['ENGINE OVERHEATING', 'RADIATOR', 'GEAR BOX', 'AXLE', 'ROAD SPRING', 'STEERING GEAR BOX', 'CLUTCH PLATE', 'WATER PUMP']
-    # User / Driver field level triggers
-    minor_keywords = ['AIR FILTER', 'SWITCH', 'WIPER', 'DOOR', 'HEAD LIGHT', 'BRAKE POOR', 'FAN BELT']
-    
     is_major = any(k in d for k in major_keywords)
     
     if "ENGINE" in d or "RADIATOR" in d or "WATER PUMP" in d or "FAN BELT" in d:
@@ -86,21 +94,22 @@ def ai_analyze_defect(defect_str):
     else:
         subsystem = "General Chassis"
 
-    if is_major:
+    # Vintage & Mileage Risk Flagging
+    if is_major or vintage >= 10 or mileage > 60000:
         intervention = "🔴 Workshop Level (Major Overhaul)"
-        action = f"Immediate component inspection, assembly overhaul / replacement needed for: {subsystem}"
+        action = f"Assembly overhaul & wear audit for: {subsystem} (Vintage: {vintage} Yrs | Mileage: {mileage:,} KM)"
     else:
         intervention = "🟡 User Level (Field Maintenance)"
-        action = f"Driver / Unit level inspection, lubrication, tensioning & adjustments for: {subsystem}"
+        action = f"Driver / Unit level check & adjustments for: {subsystem}"
         
     return subsystem, intervention, action
 
-analysis_results = df['Defect'].apply(ai_analyze_defect)
+analysis_results = [ai_analyze_defect(r['Defect'], r['Vintage_Years'], r['KM_In']) for _, r in df.iterrows()]
 df['Subsystem_Affected'] = [r[0] for r in analysis_results]
 df['Intervention_Level'] = [r[1] for r in analysis_results]
 df['AI_Predictive_Action'] = [r[2] for r in analysis_results]
 
-# Nomenclature & Vehicle Filter
+# Nomenclature & Vehicle Filters
 selected_nom = st.sidebar.selectbox("Filter Vehicle Type", ["All Types"] + list(df['Nomenclature'].unique()))
 if selected_nom != "All Types":
     df_filtered = df[df['Nomenclature'] == selected_nom]
@@ -111,12 +120,13 @@ selected_veh = st.sidebar.selectbox("Filter Specific Vehicle BA No", ["All Vehic
 if selected_veh != "All Vehicles":
     df_filtered = df_filtered[df_filtered['Veh_BA_No'] == selected_veh]
 
-# 3. High-Level Metrics
-c1, c2, c3, c4 = st.columns(4)
+# 3. High-Level Metrics (Vintage & Mileage Included)
+c1, c2, c3, c4, c5 = st.columns(5)
 c1.metric("Unique Fleet Monitored", len(df['Veh_BA_No'].unique()))
-c2.metric("Total Defect Logs Ingested", len(df_filtered))
-c3.metric("Workshop Level Major Defects", len(df_filtered[df_filtered['Intervention_Level'].str.contains("Workshop")]))
-c4.metric("User Level Field Defects", len(df_filtered[df_filtered['Intervention_Level'].str.contains("User")]))
+c2.metric("Avg Fleet Vintage", f"{df_filtered['Vintage_Years'].mean():.1f} Years")
+c3.metric("Peak Fleet Mileage", f"{int(df_filtered['KM_In'].max()):,} KM")
+c4.metric("Workshop Major Overhauls", len(df_filtered[df_filtered['Intervention_Level'].str.contains("Workshop")]))
+c5.metric("User Field Fixes", len(df_filtered[df_filtered['Intervention_Level'].str.contains("User")]))
 
 st.markdown("---")
 
@@ -129,26 +139,26 @@ with col_left:
         df_filtered['Subsystem_Affected'].value_counts().reset_index(),
         x='Subsystem_Affected',
         y='count',
-        labels={'Subsystem_Affected': 'Subsystem', 'count': 'Defect Occurrences'},
+        labels={'Subsystem_Affected': 'Subsystem', 'count': 'Defect Count'},
         color='Subsystem_Affected',
-        title="Breakdown by Critical Subsystem"
+        title="Subsystem Failure Distribution"
     )
     st.plotly_chart(fig_sub, use_container_width=True)
 
 with col_right:
-    st.subheader("📈 Mileage (KM In) vs Vehicle Defect Profile")
+    st.subheader("📈 Vintage (Years) vs Mileage (KM) Defect Mapping")
     fig_scatter = px.scatter(
         df_filtered,
-        x='KM_In',
-        y='Nomenclature',
+        x='Vintage_Years',
+        y='KM_In',
         color='Intervention_Level',
         size='KM_In',
-        hover_data=['Veh_BA_No', 'Defect', 'AI_Predictive_Action'],
+        hover_data=['Veh_BA_No', 'Nomenclature', 'Defect', 'AI_Predictive_Action'],
         color_discrete_map={
             '🔴 Workshop Level (Major Overhaul)': '#e74c3c',
             '🟡 User Level (Field Maintenance)': '#f39c12'
         },
-        title="Odometer Mileage vs Intervention Severity"
+        title="Vehicle Age & Mileage vs Repair Severity"
     )
     st.plotly_chart(fig_scatter, use_container_width=True)
 
@@ -158,7 +168,7 @@ st.markdown("---")
 st.subheader("📋 Automated Workshop Maintenance Docket & Job-Card")
 
 st.dataframe(
-    df_filtered[['Veh_BA_No', 'Nomenclature', 'KM_In', 'Dt_In', 'Dt_Out', 'Defect', 'Repair_Activity', 'Subsystem_Affected', 'Intervention_Level', 'AI_Predictive_Action']],
+    df_filtered[['Veh_BA_No', 'Nomenclature', 'Dt_Induction', 'Vintage_Years', 'KM_In', 'Defect', 'Repair_Activity', 'Subsystem_Affected', 'Intervention_Level', 'AI_Predictive_Action']],
     use_container_width=True
 )
 
