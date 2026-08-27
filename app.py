@@ -7,13 +7,13 @@ import re
 
 # 1. Page Configuration
 st.set_page_config(
-    page_title="Indian Army | Fleet Diagnostics & Maintenance Portal",
+    page_title="Indian Army | Fleet Diagnostics Portal",
     page_icon="🛡️",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# 2. Strict High-Contrast Theme (Universal Multi-Device Visibility)
+# 2. Strict Universal High-Contrast Theme
 st.markdown("""
 <style>
     .stApp {
@@ -80,49 +80,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ---------------------------------------------------------
-# 3. COMMAND ENGINE STATE (CO EDITABLE RULES & THRESHOLDS)
-# ---------------------------------------------------------
-default_rules = [
-    {
-        "Keywords": "BRAKE, AIR PRESSURE, BOOSTER",
-        "Subsystem": "Braking & Pneumatics",
-        "Root_Cause": "Air pressure leakage / booster diaphragm fatigue under heavy payload.",
-        "Action_Directive": "Perform booster bench test & overhaul brake shoe lining.",
-        "Urgency": "🔴 High Priority"
-    },
-    {
-        "Keywords": "RADIATOR, ENGINE, WATER PUMP, COOLANT, OVERHEAT",
-        "Subsystem": "Thermal & Cooling",
-        "Root_Cause": "Coolant leakage & thermal stress in extreme ambient temperatures.",
-        "Action_Directive": "Flush radiator circuit & replace water pump major service kit.",
-        "Urgency": "🔴 High Priority"
-    },
-    {
-        "Keywords": "SPRING, SUSPENSION, LEAF, AXLE",
-        "Subsystem": "Suspension & Running Gear",
-        "Root_Cause": "Cross-country terrain payload fatigue on suspension leaves.",
-        "Action_Directive": "Re-torque U-bolts to factory specs & inspect rubber bump stops.",
-        "Urgency": "🟡 Medium Priority"
-    },
-    {
-        "Keywords": "GEAR, CLUTCH, PROPELLER, TRANSMISSION",
-        "Subsystem": "Transmission & Drivetrain",
-        "Root_Cause": "Clutch plate slip / gearbox shaft excessive play.",
-        "Action_Directive": "Overhaul clutch master cylinder & conduct gearbox servicing.",
-        "Urgency": "🔴 High Priority"
-    }
-]
-
-if "co_rules" not in st.session_state:
-    st.session_state.co_rules = pd.DataFrame(default_rules)
-
-if "risk_threshold_high" not in st.session_state:
-    st.session_state.risk_threshold_high = 65
-if "risk_threshold_med" not in st.session_state:
-    st.session_state.risk_threshold_med = 40
-
-# ---------------------------------------------------------
-# 4. BULLETPROOF DATA INGESTION ENGINE
+# 3. BULLETPROOF DATA INGESTION & FEATURE PARSER
 # ---------------------------------------------------------
 def bulletproof_clean(raw_df):
     df = raw_df.copy()
@@ -179,23 +137,29 @@ def bulletproof_clean(raw_df):
         lambda k: "0-25k KM" if k <= 25000 else ("25k-50k KM" if k <= 50000 else ("50k-75k KM" if k <= 75000 else ("75k-1 Lakh KM" if k <= 100000 else "Beyond 1 Lakh KM")))
     )
 
-    # Dynamic Subsystem Mapping via CO Config Rules
-    def match_subsystem(d):
+    # Subsystem Classification
+    def categorize_subsystem(d):
         d_up = str(d).upper()
-        for _, r in st.session_state.co_rules.iterrows():
-            kws = [k.strip().upper() for k in str(r['Keywords']).split(',')]
-            if any(kw in d_up for kw in kws if kw):
-                return r['Subsystem']
+        if any(k in d_up for k in ['ENGINE', 'RADIATOR', 'WATER PUMP', 'FAN BELT', 'OVERHEAT', 'COOLANT']):
+            return "Thermal & Cooling"
+        elif any(k in d_up for k in ['GEAR', 'CLUTCH', 'AXLE', 'PROPELLER', 'DRIVE', 'TRANSMISSION']):
+            return "Transmission & Drivetrain"
+        elif any(k in d_up for k in ['SPRING', 'SUSPENSION', 'HUB SEAL', 'LEAF', 'DAMPER']):
+            return "Suspension & Running Gear"
+        elif any(k in d_up for k in ['BRAKE', 'AIR PRESSURE', 'COMPRESS', 'BOOSTER']):
+            return "Braking & Pneumatics"
+        elif any(k in d_up for k in ['SWITCH', 'LIGHT', 'WIPER', 'BATTERY', 'SOLENOID', 'DOOR']):
+            return "Electrical & Body"
         return "General Chassis"
 
-    res_df['Subsystem'] = res_df['Defect'].apply(match_subsystem)
+    res_df['Subsystem'] = res_df['Defect'].apply(categorize_subsystem)
 
-    # Action Classification
+    # Action Nature
     res_df['Action_Type'] = res_df['Repair_Activity'].apply(
         lambda r: "⚙️ Part Replaced" if any(k in str(r).upper() for k in ['NEW FITTED', 'REPLACED', 'CANNIBALIZED', 'FITTED', 'OVERHAUL', 'KIT']) else "🔧 Routine Serviced / Adjusted"
     )
 
-    # Risk Scoring
+    # Health Risk Score
     def calc_risk(row):
         base = 20
         if row['Action_Type'] == '⚙️ Part Replaced': base += 35
@@ -204,17 +168,13 @@ def bulletproof_clean(raw_df):
         return min(95, round(base, 1))
 
     res_df['AI_Failure_Risk_%'] = res_df.apply(calc_risk, axis=1)
-    
-    # Threshold Mapping
-    h_th = st.session_state.risk_threshold_high
-    m_th = st.session_state.risk_threshold_med
     res_df['Fleet_Status'] = res_df['AI_Failure_Risk_%'].apply(
-        lambda r: "🔴 Workshop Grounded" if r >= h_th else ("🟡 Minor Attention" if r >= m_th else "🟢 Mission Ready")
+        lambda r: "🔴 Workshop Grounded" if r >= 65 else ("🟡 Minor Attention" if r >= 40 else "🟢 Mission Ready")
     )
     return res_df
 
 # ---------------------------------------------------------
-# 5. BASE DATA STORE
+# 4. DEFAULT WORKSHOP DATASET
 # ---------------------------------------------------------
 @st.cache_data
 def get_default_data():
@@ -232,9 +192,9 @@ if "fleet_storage" not in st.session_state:
     st.session_state.fleet_storage = get_default_data()
 
 # ---------------------------------------------------------
-# 6. SIDEBAR CONTROLS & MULTI-FILTERS
+# 5. SIDEBAR CONTROLS & MULTI-FILTERS
 # ---------------------------------------------------------
-st.sidebar.title("🎖️ Command Controls")
+st.sidebar.title("🎖️ Maintenance Controls")
 
 file_up = st.sidebar.file_uploader("📂 Ingest Workshop Log (.xlsx / .csv)", type=["xlsx", "csv"])
 if file_up:
@@ -258,9 +218,9 @@ if sel_nom != "All Vehicles": dff = dff[dff['Nomenclature'] == sel_nom]
 if sel_sub != "All Subsystems": dff = dff[dff['Subsystem'] == sel_sub]
 
 # ---------------------------------------------------------
-# 7. MAIN HEADER & FIXED CONTRAST KPIS
+# 6. HEADER & SUMMARY METRICS
 # ---------------------------------------------------------
-st.title("🛡️ Indian Army Fleet Diagnostics & Telematics")
+st.title("🛡️ Indian Army Fleet Diagnostics & Telematics Portal")
 st.caption(f"Active Unit: **{sel_unit}** | Platform: **{sel_nom}** | Subsystem: **{sel_sub}**")
 
 k1, k2, k3, k4 = st.columns(4)
@@ -282,13 +242,12 @@ with k4:
 st.markdown("---")
 
 # ---------------------------------------------------------
-# 8. TABS & INTERACTIVE VISUALS
+# 7. TABS: ANALYTICS, DIAGNOSTICS & DOCKET
 # ---------------------------------------------------------
-tab_charts, tab_predict, tab_docket, tab_admin = st.tabs([
+tab_charts, tab_predict, tab_docket = st.tabs([
     "📊 Subsystem & Mileage Analytics", 
     "🔮 AI Predictive Action & Vehicle Audit", 
-    "📋 Digital Maintenance Docket",
-    "⚙️ CO Command & Rules Backend"
+    "📋 Digital Maintenance Docket"
 ])
 
 with tab_charts:
@@ -349,22 +308,49 @@ with tab_predict:
             st.markdown("#### 🛠️ AI Prescriptive Action Directives")
             def_text = " ".join(v_rows['Defect'].tolist()).upper()
             
-            matched = False
-            for _, rule in st.session_state.co_rules.iterrows():
-                kws = [k.strip().upper() for k in str(rule['Keywords']).split(',')]
-                if any(k in def_text for k in kws if k):
-                    matched = True
+            actions = []
+            if "BRAKE" in def_text or "PRESSURE" in def_text or "BOOSTER" in def_text:
+                actions.append({
+                    "sub": "Braking & Pneumatics",
+                    "cause": "Air pressure leakage / booster diaphragm fatigue under heavy payload.",
+                    "action": "Perform booster bench test & overhaul brake shoe lining.",
+                    "urgency": "🔴 High Priority"
+                })
+            if "RADIATOR" in def_text or "ENGINE" in def_text or "WATER PUMP" in def_text or "COOLANT" in def_text or "OVERHEAT" in def_text:
+                actions.append({
+                    "sub": "Thermal & Cooling",
+                    "cause": "Coolant leakage & thermal stress in extreme ambient temperatures.",
+                    "action": "Flush radiator circuit & replace water pump major service kit.",
+                    "urgency": "🔴 High Priority"
+                })
+            if "SPRING" in def_text or "SUSPENSION" in def_text or "LEAF" in def_text or "AXLE" in def_text:
+                actions.append({
+                    "sub": "Suspension & Running Gear",
+                    "cause": "Cross-country terrain payload fatigue on suspension leaves.",
+                    "action": "Re-torque U-bolts to factory specs & inspect rubber bump stops.",
+                    "urgency": "🟡 Medium Priority"
+                })
+            if "GEAR" in def_text or "CLUTCH" in def_text or "PROPELLER" in def_text or "TRANSMISSION" in def_text:
+                actions.append({
+                    "sub": "Transmission & Drivetrain",
+                    "cause": "Clutch plate slip / gearbox shaft excessive play.",
+                    "action": "Overhaul clutch master cylinder & conduct gearbox servicing.",
+                    "urgency": "🔴 High Priority"
+                })
+                
+            if actions:
+                for act in actions:
                     st.markdown(f"""
                     <div class="action-card-fixed">
                         <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <div class="action-card-title">{rule['Subsystem']}</div>
-                            <span style="font-weight:700; font-size:12px;">{rule['Urgency']}</span>
+                            <div class="action-card-title">{act['sub']}</div>
+                            <span style="font-weight:700; font-size:12px;">{act['urgency']}</span>
                         </div>
-                        <div class="action-card-cause"><b>⚠️ Root Cause:</b> {rule['Root_Cause']}</div>
-                        <div class="action-card-sol"><b>✅ Required Workshop Action:</b> {rule['Action_Directive']}</div>
+                        <div class="action-card-cause"><b>⚠️ Root Cause:</b> {act['cause']}</div>
+                        <div class="action-card-sol"><b>✅ Required Workshop Action:</b> {act['action']}</div>
                     </div>
                     """, unsafe_allow_html=True)
-            if not matched:
+            else:
                 st.info("System operating within nominal field tolerances. Standard routine service applies.")
 
 with tab_docket:
@@ -372,17 +358,3 @@ with tab_docket:
     cols_show = ['Veh_BA_No', 'Unit', 'Nomenclature', 'Vintage_Band', 'Mileage_Band', 'KM_In', 'Defect', 'Repair_Activity', 'Subsystem', 'Action_Type', 'AI_Failure_Risk_%', 'Fleet_Status']
     edited_data = st.data_editor(dff[cols_show], num_rows="dynamic", use_container_width=True)
     st.download_button("📥 Download Official Docket (CSV)", edited_data.to_csv(index=False).encode('utf-8'), "Army_Maintenance_Docket.csv", "text/csv")
-
-with tab_admin:
-    st.subheader("⚙️ Commanding Officer — System Rules & Action Configurator")
-    st.caption("As Commanding Officer, you can modify failure trigger keywords, prescriptive action orders, and risk thresholds below.")
-
-    r_col1, r_col2 = st.columns(2)
-    with r_col1:
-        st.session_state.risk_threshold_high = st.slider("🔴 High Risk / Workshop Grounded Threshold (%)", 50, 90, st.session_state.risk_threshold_high)
-    with r_col2:
-        st.session_state.risk_threshold_med = st.slider("🟡 Medium Risk / Minor Attention Threshold (%)", 20, 60, st.session_state.risk_threshold_med)
-
-    st.markdown("#### 📜 Live Prescriptive Action Rules Matrix")
-    updated_rules = st.data_editor(st.session_state.co_rules, num_rows="dynamic", use_container_width=True)
-    st.session_state.co_rules = updated_rules
