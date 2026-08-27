@@ -5,24 +5,21 @@ import plotly.express as px
 from datetime import datetime
 import re
 
-# 1. PAGE CONFIG & FORCED GLOBAL THEME
+# 1. Page Configuration
 st.set_page_config(
-    page_title="Indian Army | Fleet Diagnostics Portal",
+    page_title="Indian Army | Fleet Diagnostics & Maintenance Portal",
     page_icon="🛡️",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# 2. BULLETPROOF CSS (IDENTICAL ACROSS ALL BROWSERS & LIGHT/DARK MODES)
+# 2. Strict High-Contrast Theme (Universal Multi-Device Visibility)
 st.markdown("""
 <style>
-    /* Force exact base background and text color on all devices */
     .stApp {
         background-color: #0e1117 !important;
         color: #f8fafc !important;
     }
-    
-    /* Metrics Box - Fixed Colors */
     .metric-card-fixed {
         background-color: #1e293b !important;
         border: 1px solid #334155 !important;
@@ -47,8 +44,6 @@ st.markdown("""
         font-size: 12px !important;
         font-weight: 600 !important;
     }
-
-    /* AI Directive Cards - Fixed Colors */
     .action-card-fixed {
         background-color: #1e293b !important;
         border: 1px solid #475569 !important;
@@ -73,8 +68,6 @@ st.markdown("""
         font-weight: 600 !important;
         margin: 4px 0 !important;
     }
-
-    /* Tab bar headers visible everywhere */
     .stTabs [data-baseweb="tab"] {
         color: #cbd5e1 !important;
         font-weight: 600 !important;
@@ -87,7 +80,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ---------------------------------------------------------
-# 3. DEFAULT RULES STORE
+# 3. COMMAND ENGINE STATE (CO EDITABLE RULES & THRESHOLDS)
 # ---------------------------------------------------------
 default_rules = [
     {
@@ -129,7 +122,7 @@ if "risk_threshold_med" not in st.session_state:
     st.session_state.risk_threshold_med = 40
 
 # ---------------------------------------------------------
-# 4. BULLETPROOF DATA INGESTION & CLEANER
+# 4. BULLETPROOF DATA INGESTION ENGINE
 # ---------------------------------------------------------
 def bulletproof_clean(raw_df):
     df = raw_df.copy()
@@ -165,7 +158,7 @@ def bulletproof_clean(raw_df):
     }
     res_df = pd.DataFrame(clean_dict)
     
-    # Vintage
+    # Vintage Calculation
     def extract_vintage(val):
         try:
             years = re.findall(r'\b(19\d\d|20\d\d)\b', str(val))
@@ -180,13 +173,13 @@ def bulletproof_clean(raw_df):
         lambda v: "0-5 Years" if v <= 5 else ("5-10 Years" if v <= 10 else ("10-15 Years" if v <= 15 else "15+ Years"))
     )
 
-    # Mileage
+    # Mileage Calculation
     res_df['KM_In_Num'] = pd.to_numeric(res_df['KM_In'], errors='coerce').fillna(25000)
     res_df['Mileage_Band'] = res_df['KM_In_Num'].apply(
         lambda k: "0-25k KM" if k <= 25000 else ("25k-50k KM" if k <= 50000 else ("50k-75k KM" if k <= 75000 else ("75k-1 Lakh KM" if k <= 100000 else "Beyond 1 Lakh KM")))
     )
 
-    # Subsystem mapping via rules
+    # Dynamic Subsystem Mapping via CO Config Rules
     def match_subsystem(d):
         d_up = str(d).upper()
         for _, r in st.session_state.co_rules.iterrows():
@@ -197,12 +190,12 @@ def bulletproof_clean(raw_df):
 
     res_df['Subsystem'] = res_df['Defect'].apply(match_subsystem)
 
-    # Action nature
+    # Action Classification
     res_df['Action_Type'] = res_df['Repair_Activity'].apply(
         lambda r: "⚙️ Part Replaced" if any(k in str(r).upper() for k in ['NEW FITTED', 'REPLACED', 'CANNIBALIZED', 'FITTED', 'OVERHAUL', 'KIT']) else "🔧 Routine Serviced / Adjusted"
     )
 
-    # Failure Risk
+    # Risk Scoring
     def calc_risk(row):
         base = 20
         if row['Action_Type'] == '⚙️ Part Replaced': base += 35
@@ -212,6 +205,7 @@ def bulletproof_clean(raw_df):
 
     res_df['AI_Failure_Risk_%'] = res_df.apply(calc_risk, axis=1)
     
+    # Threshold Mapping
     h_th = st.session_state.risk_threshold_high
     m_th = st.session_state.risk_threshold_med
     res_df['Fleet_Status'] = res_df['AI_Failure_Risk_%'].apply(
@@ -220,7 +214,7 @@ def bulletproof_clean(raw_df):
     return res_df
 
 # ---------------------------------------------------------
-# 5. DATA STORE
+# 5. BASE DATA STORE
 # ---------------------------------------------------------
 @st.cache_data
 def get_default_data():
@@ -238,7 +232,7 @@ if "fleet_storage" not in st.session_state:
     st.session_state.fleet_storage = get_default_data()
 
 # ---------------------------------------------------------
-# 6. SIDEBAR CONTROLS
+# 6. SIDEBAR CONTROLS & MULTI-FILTERS
 # ---------------------------------------------------------
 st.sidebar.title("🎖️ Command Controls")
 
@@ -288,7 +282,7 @@ with k4:
 st.markdown("---")
 
 # ---------------------------------------------------------
-# 8. VISUAL ANALYTICS & HIGH-CONTRAST TABS
+# 8. TABS & INTERACTIVE VISUALS
 # ---------------------------------------------------------
 tab_charts, tab_predict, tab_docket, tab_admin = st.tabs([
     "📊 Subsystem & Mileage Analytics", 
@@ -308,7 +302,6 @@ with tab_charts:
                 color_discrete_map={'⚙️ Part Replaced': '#ef4444', '🔧 Routine Serviced / Adjusted': '#38bdf8'},
                 text='Count'
             )
-            # Force dark solid background & white fonts for Plotly
             fig_sub.update_layout(
                 plot_bgcolor='#1e293b', paper_bgcolor='#1e293b',
                 font=dict(color='#f8fafc'), xaxis=dict(color='#cbd5e1', gridcolor='#334155'),
